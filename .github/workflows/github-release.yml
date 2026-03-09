@@ -6,15 +6,6 @@ on:
       RELEASE_TOKEN:
         description: 'GitHub token for release creation'
         required: true
-      FTP_PASSWORD:
-        description: 'FTP Password'
-        required: false
-      FTP_USER:
-        description: 'FTP User'
-        required: false
-      FTP_HOST:
-        description: 'FTP Host'
-        required: false
 
 permissions:
   contents: write
@@ -158,31 +149,5 @@ jobs:
             $FILES_TO_UPLOAD
         else
           echo "Error: No files found to upload"
-          exit 1
-        fi
-
-    - name: Install lftp
-      run: sudo apt-get install -y lftp
-        
-    - name: Upload Firmware via FTP
-      if: success()
-      env:
-        FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
-        FTP_USER: ${{ secrets.FTP_USER }}
-        FTP_HOST: ${{ secrets.FTP_HOST }}
-        VERSION: ${{ steps.get_version.outputs.VERSION }}
-      run: |
-        cd .pio/build/esp32dev
-        if [ -n "$FTP_USER" ] && [ -n "$FTP_PASSWORD" ] && [ -n "$FTP_HOST" ]; then
-          echo "All FTP credentials are present, attempting upload..."
-          lftp -c "set ssl:verify-certificate no; \
-                    set ftp:ssl-protect-data true; \
-                    set ftp:ssl-force true; \
-                    set ssl:check-hostname false; \
-                    set ftp:ssl-auth TLS; \
-                    open -u $FTP_USER,$FTP_PASSWORD $FTP_HOST; \
-                    put -O / filaman_full_${VERSION}.bin -o filaman_full.bin"
-        else
-          echo "Error: Some FTP credentials are missing"
           exit 1
         fi

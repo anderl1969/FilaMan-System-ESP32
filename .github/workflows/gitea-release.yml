@@ -6,6 +6,18 @@ on:
       GITEA_TOKEN:
         description: 'Token für Gitea API-Zugriff'
         required: true
+      FILAMAN_SSH_PRIVATE_KEY:
+        description: 'SSH Private Key für Deployment'
+        required: true
+      FILAMAN_SSH_HOST:
+        description: 'SSH Host für Deployment'
+        required: true
+      FILAMAN_SSH_USER:
+        description: 'SSH User für Deployment'
+        required: true
+      FILAMAN_SSH_FIRMWARE_PATH:
+        description: 'SSH Pfad für Firmware Upload'
+        required: true
 
     outputs:
       version:
@@ -212,3 +224,31 @@ jobs:
             fi
           fi
         done
+
+    - name: SSH-Deploy Firmware
+      if: success()
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.FILAMAN_SSH_PRIVATE_KEY }}
+        SSH_HOST: ${{ secrets.FILAMAN_SSH_HOST }}
+        SSH_USER: ${{ secrets.FILAMAN_SSH_USER }}
+        SSH_PATH: ${{ secrets.FILAMAN_SSH_FIRMWARE_PATH }}
+        VERSION: ${{ steps.get_version.outputs.VERSION }}
+      run: |
+        set -euo pipefail
+
+        # SSH-Key einrichten
+        mkdir -p ~/.ssh
+        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+
+        cd .pio/build/esp32dev
+
+        # Full-Binary per SCP hochladen
+        echo "📤 Upload filaman_full_${VERSION}.bin per SCP ..."
+        scp -o StrictHostKeyChecking=no "filaman_full_${VERSION}.bin" "${SSH_USER}@${SSH_HOST}:${SSH_PATH}/filaman_full.bin"
+
+        echo "✅ filaman_full.bin auf ${SSH_HOST}:${SSH_PATH}/ hochgeladen."
+
+        # Aufräumen
+        rm -f ~/.ssh/id_rsa
