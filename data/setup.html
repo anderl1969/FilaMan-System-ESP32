@@ -57,6 +57,18 @@
                 <button id="registerBtn" class="fm-btn fm-btn-primary">Register Device</button>
                 <div id="statusMessage" style="margin-top: 1.5rem;"></div>
             </div>
+
+            <div class="fm-card">
+                <h2>General Settings</h2>
+                
+                <div class="fm-form-group" style="margin-top: 1rem;">
+                    <label class="fm-label" for="languageSelect">Display Language</label>
+                    <select id="languageSelect" class="fm-input">
+                        <option value="en">English</option>
+                        <option value="de">Deutsch</option>
+                    </select>
+                </div>
+            </div>
         </main>
     </div>
 
@@ -69,6 +81,29 @@
                 if (versionSpan) versionSpan.textContent = 'v' + data.version;
             })
             .catch(error => console.error('Error fetching version:', error));
+
+        // Language setting
+        fetch('/api/language')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('languageSelect').value = data.lang;
+            })
+            .catch(error => console.error('Error fetching language:', error));
+
+        document.getElementById('languageSelect').addEventListener('change', function() {
+            fetch('/api/language', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ lang: this.value })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('Language saved');
+                }
+            })
+            .catch(error => console.error('Error saving language:', error));
+        });
 
         document.getElementById('registerBtn').addEventListener('click', () => {
             const url = document.getElementById('filamanUrl').value;

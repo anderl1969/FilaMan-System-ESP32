@@ -9,6 +9,7 @@
 #include "config.h"
 #include <WiFi.h>
 #include "display.h"
+#include "lang.h"
 
 volatile filamanApiStateType filamanApiState = API_IDLE;
 bool filamanConnected = false;
@@ -132,7 +133,7 @@ bool sendWeight(int spoolId, String tagUuid, float measuredWeight) {
         return true;
     }
     else {
-        oledShowProgressBar(1, 1, "Failure", "API Error");
+        oledShowProgressBar(1, 1, tr(STR_FAILURE), tr(STR_API_ERROR));
         oledSetPriority(DISPLAY_PRIORITY_WARNING, 2000);
         vTaskDelay(pdMS_TO_TICKS(2000));
         oledClearPriority();

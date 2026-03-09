@@ -4,6 +4,7 @@
 #include "icons.h"
 #include "main.h"
 #include <cstring>
+#include "lang.h"
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
@@ -56,7 +57,7 @@ void setupDisplay() {
 
 
     oledShowTopRow();
-    oledShowProgressBar(0, 7, DISPLAY_BOOT_TEXT, "Display init");
+    oledShowProgressBar(0, 7, DISPLAY_BOOT_TEXT, tr(STR_DISPLAY_INIT));
 }
 
 void oledclearline() {
@@ -282,8 +283,8 @@ void oledShowWeight(uint16_t weight) {
 void oledShowRemainingWeight(uint16_t remainingWeight) {
     oledcleardata();
     display.setTextSize(1);
-    display.setCursor(oled_center_h("Weight sent, rest:"), OLED_DATA_START + 4);
-    display.print("Weight sent, rest:");
+    display.setCursor(oled_center_h(tr(STR_WEIGHT_SENT_REST)), OLED_DATA_START + 4);
+    display.print(tr(STR_WEIGHT_SENT_REST));
     
     display.setTextSize(3);
     String weightStr = String(remainingWeight) + " g";

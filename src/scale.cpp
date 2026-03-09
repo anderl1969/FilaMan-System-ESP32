@@ -7,6 +7,7 @@
 #include "display.h"
 #include "esp_task_wdt.h"
 #include <Preferences.h>
+#include "lang.h"
 
 HX711 scale;
 
@@ -169,7 +170,7 @@ void scale_loop(void * parameter) {
         if (scaleTareRequest == true || (autoTare && scale_tare_counter >= 20)) 
         {
           Serial.println("Re-Tare scale");
-          oledDisplayText("TARE Scale");
+          oledDisplayText(tr(STR_TARE_SCALE));
           vTaskDelay(pdMS_TO_TICKS(1000));
           scale.tare();
           resetWeightFilter(); // Reset filter after manual tare
@@ -250,7 +251,7 @@ void start_scale(bool touchSensorConnected) {
 
   scale.begin(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN);
 
-  oledShowProgressBar(6, 7, DISPLAY_BOOT_TEXT, "Serching scale");
+  oledShowProgressBar(6, 7, DISPLAY_BOOT_TEXT, tr(STR_SEARCHING_SCALE));
   for (uint16_t i = 0; i < 3000; i++) {
     yield();
     vTaskDelay(pdMS_TO_TICKS(1));
@@ -303,7 +304,7 @@ uint8_t calibrate_scale() {
   {
     
     scale.set_scale();
-    oledShowProgressBar(0, 3, "Scale Cal.", "Empty Scale");
+    oledShowProgressBar(0, 3, tr(STR_SCALE_CAL), tr(STR_EMPTY_SCALE));
 
     for (uint16_t i = 0; i < 5000; i++) {
       yield();
@@ -315,7 +316,7 @@ uint8_t calibrate_scale() {
     Serial.println("Tare done...");
     Serial.print("Place a known weight on the scale...");
 
-    oledShowProgressBar(1, 3, "Scale Cal.", "Place the weight");
+    oledShowProgressBar(1, 3, tr(STR_SCALE_CAL), tr(STR_PLACE_WEIGHT));
 
     for (uint16_t i = 0; i < 5000; i++) {
       yield();
@@ -348,7 +349,7 @@ uint8_t calibrate_scale() {
       Serial.print("Verified stored value: ");
       Serial.println(verifyValue);
 
-      oledShowProgressBar(2, 3, "Scale Cal.", "Remove weight");
+      oledShowProgressBar(2, 3, tr(STR_SCALE_CAL), tr(STR_REMOVE_WEIGHT));
 
       scale.set_scale(newCalibrationValue);
       resetWeightFilter(); // Reset filter after calibration
@@ -358,7 +359,7 @@ uint8_t calibrate_scale() {
         esp_task_wdt_reset();
       }
       
-      oledShowProgressBar(3, 3, "Scale Cal.", "Completed");
+      oledShowProgressBar(3, 3, tr(STR_SCALE_CAL), tr(STR_COMPLETED));
 
       // For some reason it is not possible to re-tare the scale here, it will result in a wdt timeout. Instead let the scale loop do the taring
       //scale.tare();
@@ -377,7 +378,7 @@ uint8_t calibrate_scale() {
     {
       Serial.println("Calibration value is invalid. Please recalibrate.");
 
-      oledShowProgressBar(3, 3, "Failure", "Calibration error");
+      oledShowProgressBar(3, 3, tr(STR_FAILURE), tr(STR_CALIBRATION_ERROR));
 
       for (uint16_t i = 0; i < 50000; i++) {
         yield();
@@ -391,7 +392,7 @@ uint8_t calibrate_scale() {
   {
     Serial.println("HX711 not found.");
     
-    oledDisplayText("HX711 not found");
+    oledDisplayText(tr(STR_HX711_NOT_FOUND));
 
     for (uint16_t i = 0; i < 30000; i++) {
       yield();

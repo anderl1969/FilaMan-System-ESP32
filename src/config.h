@@ -11,6 +11,9 @@
 #define NVS_NAMESPACE_SCALE                 "scale"
 #define NVS_KEY_CALIBRATION                 "cal_value"
 #define NVS_KEY_AUTOTARE                    "auto_tare"
+
+#define NVS_NAMESPACE_SETTINGS             "settings"
+#define NVS_KEY_LANGUAGE                    "language"
 #define SCALE_DEFAULT_CALIBRATION_VALUE     430.0f;
 
 #define OLED_RESET                          -1      // Reset pin # (or -1 if sharing Arduino reset pin)

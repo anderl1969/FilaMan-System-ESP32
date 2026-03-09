@@ -3,6 +3,7 @@
 #include <commonFS.h>
 #include "scale.h"
 #include "nfc.h"
+#include "lang.h"
 
 
 // Globale Variablen für Config Backups hinzufügen
@@ -178,7 +179,7 @@ void handleUpdate(AsyncWebServer &server) {
             static int lastProgress = -1;
             if (currentProgress != lastProgress && (currentProgress % 10 == 0 || final)) {
                 sendUpdateProgress(currentProgress, "uploading");
-                oledShowProgressBar(currentProgress, 100, "Update", "Download");
+                oledShowProgressBar(currentProgress, 100, tr(STR_UPDATE), tr(STR_DOWNLOAD));
                 vTaskDelay(pdMS_TO_TICKS(50));
                 lastProgress = currentProgress;
             }

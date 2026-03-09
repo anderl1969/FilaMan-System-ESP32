@@ -6,6 +6,7 @@
 #include <DNSServer.h>
 #include "display.h"
 #include "config.h"
+#include "lang.h"
 
 WiFiManager wm;
 bool wm_nonblocking = false;
@@ -31,7 +32,7 @@ void wifiSettings() {
 void configModeCallback (WiFiManager *myWiFiManager) {
   Serial.println("Entered config mode");
   oledShowTopRow();
-  oledDisplayText("WiFi Config Mode");
+  oledDisplayText(tr(STR_WIFI_CONFIG_MODE));
 }
 
 void initWiFi() {
@@ -50,14 +51,14 @@ void initWiFi() {
   wm.setWiFiAutoReconnect(true);
   wm.setConnectTimeout(10);
 
-  oledShowProgressBar(1, 7, DISPLAY_BOOT_TEXT, "WiFi init");
+  oledShowProgressBar(1, 7, DISPLAY_BOOT_TEXT, tr(STR_WIFI_INIT));
   
   //bool res = wm.autoConnect("FilaMan"); // anonymous ap
   if(!wm.autoConnect("FilaMan")) {
     Serial.println("Failed to connect or hit timeout");
     // ESP.restart();
     oledShowTopRow();
-    oledDisplayText("WiFi not connected Check Portal");
+    oledDisplayText(tr(STR_WIFI_NOT_CONNECTED));
   } 
   else {
     wifiOn = true;
@@ -78,7 +79,7 @@ void checkWiFiConnection() {
         Serial.println("WiFi connection lost. LwIP is auto-reconnecting...");
         wifiOn = false;
         oledShowTopRow();
-        oledDisplayText("WiFi reconnecting");
+        oledDisplayText(tr(STR_WIFI_RECONNECTING));
     }
     
     wifiErrorCounter++;

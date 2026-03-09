@@ -11,6 +11,7 @@
 #include "ota.h"
 #include "config.h"
 #include "debug.h"
+#include "lang.h"
 
 #ifndef VERSION
   #define VERSION "1.2.0"
@@ -113,7 +114,7 @@ void sendNfcData() {
 }
 
 void setupWebserver(AsyncWebServer &server) {
-    oledShowProgressBar(2, 7, DISPLAY_BOOT_TEXT, "Webserver init");
+    oledShowProgressBar(2, 7, DISPLAY_BOOT_TEXT, tr(STR_WEBSERVER_INIT));
     
     ws.onEvent(onWsEvent);
     server.addHandler(&ws);
@@ -238,6 +239,34 @@ void setupWebserver(AsyncWebServer &server) {
 
     server.on("/api/version", HTTP_GET, [](AsyncWebServerRequest *request){
         request->send(200, "application/json", "{\"version\": \"" VERSION "\"}");
+    });
+
+    // Language API
+    server.on("/api/language", HTTP_GET, [](AsyncWebServerRequest *request){
+        JsonDocument doc;
+        doc["lang"] = getLangCode();
+        String response;
+        serializeJson(doc, response);
+        request->send(200, "application/json", response);
+    });
+
+    server.on("/api/language", HTTP_POST, [](AsyncWebServerRequest *request){}, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total){
+        JsonDocument doc;
+        DeserializationError error = deserializeJson(doc, (const uint8_t*)data, len);
+        if (error) {
+            request->send(400, "application/json", "{\"success\": false, \"error\": \"Invalid JSON\"}");
+            return;
+        }
+        String lang = doc["lang"] | "";
+        if (lang == "de") {
+            saveLanguage(LANG_DE);
+        } else if (lang == "en") {
+            saveLanguage(LANG_EN);
+        } else {
+            request->send(400, "application/json", "{\"success\": false, \"error\": \"Invalid language\"}");
+            return;
+        }
+        request->send(200, "application/json", "{\"success\": true}");
     });
 
     server.on("/reboot", HTTP_GET, [](AsyncWebServerRequest *request){

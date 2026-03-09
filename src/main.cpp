@@ -13,6 +13,7 @@
 #include "scale.h"
 #include "esp_task_wdt.h"
 #include "commonFS.h"
+#include "lang.h"
 
 bool mainTaskWasPaused = 0;
 uint8_t scaleTareCounter = 0;
@@ -31,6 +32,9 @@ void setup() {
 
   // Initialize SPIFFS
   initializeFileSystem();
+
+  // Load language setting from NVS (before display init)
+  loadLanguage();
 
   // Start Display
   setupDisplay();
@@ -108,11 +112,11 @@ void loop() {
   // Handle connection errors (not registered or not connected)
   if (intervalElapsed(currentMillis, lastConnErrorShowTime, connErrorShowInterval)) {
       if (!filamanRegistered && oledCanUpdate(DISPLAY_PRIORITY_WARNING)) {
-          oledShowConnectionError("Not Registered", WiFi.localIP().toString());
+          oledShowConnectionError(tr(STR_NOT_REGISTERED), WiFi.localIP().toString());
           oledSetPriority(DISPLAY_PRIORITY_WARNING, 3000);
           mainTaskWasPaused = true;
       } else if (!filamanConnected && oledCanUpdate(DISPLAY_PRIORITY_WARNING)) {
-          oledShowConnectionError("API Connection Lost", WiFi.localIP().toString());
+          oledShowConnectionError(tr(STR_API_CONN_LOST), WiFi.localIP().toString());
           oledSetPriority(DISPLAY_PRIORITY_WARNING, 3000);
           mainTaskWasPaused = true;
       }
@@ -150,7 +154,7 @@ void loop() {
   {
     // Do not show the warning if the calibratin process is onging
     if(!scaleCalibrationActive){
-      oledDisplayText("Scale not calibrated");
+      oledDisplayText(tr(STR_SCALE_NOT_CALIBRATED));
       vTaskDelay(pdMS_TO_TICKS(1000));
     }
   } 
@@ -186,7 +190,7 @@ void loop() {
         weightCounterToApi++;
         // Show stable weight feedback when approaching send threshold
         if (weightCounterToApi == 3 && nfcReaderState == NFC_READ_SUCCESS && !tagProcessed && weightSend == 0) {
-          oledShowProgressBar(2, 4, "Spool Tag", "Weight stable");
+          oledShowProgressBar(2, 4, tr(STR_SPOOL_TAG), tr(STR_WEIGHT_STABLE));
           oledSetPriority(DISPLAY_PRIORITY_INFO, 1000);
         }
       } 
@@ -194,7 +198,7 @@ void loop() {
       {
         // Show visual feedback when tag is present and weight is unstable
         if (weightCounterToApi > 0 && nfcReaderState == NFC_READ_SUCCESS && !tagProcessed && weightSend == 0) {
-          oledShowProgressBar(1, 4, "Spool Tag", "Weighing...");
+          oledShowProgressBar(1, 4, tr(STR_SPOOL_TAG), tr(STR_WEIGHING));
           oledSetPriority(DISPLAY_PRIORITY_INFO, 1000);
         }
         weightCounterToApi = 0;
@@ -221,7 +225,7 @@ void loop() {
       weightSend = 1;
       
       // Feedback to user
-      oledShowProgressBar(3, 4, "Spool Tag", "Sending...");
+      oledShowProgressBar(3, 4, tr(STR_SPOOL_TAG), tr(STR_SENDING));
       oledSetPriority(DISPLAY_PRIORITY_ACTION, 2000);
     }
 
@@ -238,7 +242,7 @@ void loop() {
         Serial.println("Weight queued for FilaMan after spool tag write");
         
         // Feedback to user
-        oledShowProgressBar(3, 4, "Tag written", "Sending...");
+        oledShowProgressBar(3, 4, tr(STR_TAG_WRITTEN), tr(STR_SENDING));
         oledSetPriority(DISPLAY_PRIORITY_ACTION, 2000);
       } else {
         // Location tag written - no weight to send
