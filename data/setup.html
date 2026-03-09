@@ -92,9 +92,9 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    statusMessage.textContent = 'Registration successful! Rebooting...';
+                    statusMessage.textContent = 'Registration successful!';
                     statusMessage.style.color = 'var(--success-text)';
-                    setTimeout(() => fetch('/reboot'), 2000);
+                    setTimeout(() => location.reload(), 2000);
                 } else {
                     statusMessage.textContent = 'Registration failed. Please check your code and URL.';
                     statusMessage.style.color = 'var(--error-text)';
