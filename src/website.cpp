@@ -227,11 +227,14 @@ void setupWebserver(AsyncWebServer &server) {
         String payloadString;
         serializeJson(doc, payloadString);
         
+        bool hasSpoolId = !doc["spool_id"].isNull() || !doc["sm_id"].isNull();
         int spoolId = doc["spool_id"] | 0;
+        if (spoolId == 0 && doc["sm_id"].is<String>()) {
+            spoolId = doc["sm_id"].as<String>().toInt();
+        }
         int locationId = doc["location_id"] | 0;
 
-        // Start write task (fire and forget)
-        startWriteJsonToTag(!doc["spool_id"].isNull(), payloadString.c_str(), spoolId, locationId);
+        startWriteJsonToTag(hasSpoolId, payloadString.c_str(), spoolId, locationId);
         
         // Respond immediately
         request->send(200, "application/json", "{\"success\": true, \"message\": \"Schreibvorgang wurde gestartet. Bitte Tag bereit halten...\"}");

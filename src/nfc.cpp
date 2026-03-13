@@ -1900,19 +1900,27 @@ String optimizeJsonForFastPath(const char* payload) {
     JsonDocument optimizedDoc;
     
     // Always add sm_id first (even if it's "0" for brand filaments)
-    if (inputDoc["sm_id"].is<String>()) {
+    // Also convert spool_id to sm_id if present (backend may send either)
+    if (inputDoc["sm_id"].is<String>() && inputDoc["sm_id"].as<String>() != "0" && inputDoc["sm_id"].as<String>() != "") {
         optimizedDoc["sm_id"] = inputDoc["sm_id"].as<String>();
         Serial.print("Optimizing JSON: sm_id found = ");
         Serial.println(inputDoc["sm_id"].as<String>());
+    } else if (inputDoc["spool_id"].is<int>() && inputDoc["spool_id"].as<int>() > 0) {
+        optimizedDoc["sm_id"] = String(inputDoc["spool_id"].as<int>());
+        Serial.print("Optimizing JSON: Converted spool_id to sm_id = ");
+        Serial.println(inputDoc["spool_id"].as<int>());
+    } else if (inputDoc["spool_id"].is<String>() && inputDoc["spool_id"].as<String>() != "0" && inputDoc["spool_id"].as<String>() != "") {
+        optimizedDoc["sm_id"] = inputDoc["spool_id"].as<String>();
+        Serial.print("Optimizing JSON: Converted spool_id (string) to sm_id = ");
+        Serial.println(inputDoc["spool_id"].as<String>());
     } else {
         optimizedDoc["sm_id"] = "0"; // Default for brand filaments
-        Serial.println("Optimizing JSON: No sm_id found, setting to '0'");
+        Serial.println("Optimizing JSON: No sm_id or spool_id found, setting sm_id to '0'");
     }
     
-    // Add all other keys in original order
     for (JsonPair kv : inputDoc.as<JsonObject>()) {
         String key = kv.key().c_str();
-        if (key != "sm_id") { // Skip sm_id as it's already added first
+        if (key != "sm_id" && key != "spool_id") {
             optimizedDoc[key] = kv.value();
         }
     }
