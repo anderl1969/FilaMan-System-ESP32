@@ -110,7 +110,7 @@ bool sendWeight(int spoolId, String tagUuid, float measuredWeight) {
     // For Bambu tags (spoolId == 0), only send tag_uuid
     if (spoolId > 0) doc["spool_id"] = spoolId;
     // Always add tag_uuid if available (this is what we want for Bambu tags)
-    if (tagUuid.length() > 0) doc["rfid_uid"] = tagUuid;
+    if (tagUuid.length() > 0) doc["tag_uuid"] = tagUuid;
     doc["measured_weight_g"] = measuredWeight;
     String payload;
     serializeJson(doc, payload);
@@ -172,7 +172,7 @@ bool sendRfidResult(String tagUuid, int spoolId, int locationId, bool success, S
     
     JsonDocument doc;
     doc["success"] = success;
-    if (tagUuid.length() > 0) doc["rfid_uid"] = tagUuid;
+    if (tagUuid.length() > 0) doc["tag_uuid"] = tagUuid;
     if (spoolId > 0) doc["spool_id"] = spoolId;
     if (locationId > 0) doc["location_id"] = locationId;
     if (errorMessage.length() > 0) doc["error_message"] = errorMessage;
