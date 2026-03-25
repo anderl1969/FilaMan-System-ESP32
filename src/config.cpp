@@ -53,3 +53,7 @@ uint8_t rfidWriteTaskPrio = 1;
 uint8_t scaleTaskCore = 0;
 uint8_t scaleTaskPrio = 1;
 // ***** Task Prios
+
+// ***** common
+u_int8_t actualSetupSteps = NUM_SETUP_STEPS;
+// ***** common

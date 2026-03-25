@@ -57,7 +57,7 @@ void setupDisplay() {
 
 
     oledShowTopRow();
-    oledShowProgressBar(0, 7, DISPLAY_BOOT_TEXT, tr(STR_DISPLAY_INIT));
+    oledShowProgressBar(0, actualSetupSteps, DISPLAY_BOOT_TEXT, tr(STR_DISPLAY_INIT));
 }
 
 void oledclearline() {
@@ -86,14 +86,14 @@ int oled_center_v(const String &text) {
 std::vector<String> splitTextIntoLines(const String &text, uint8_t textSize) {
     std::vector<String> lines;
     display.setTextSize(textSize);
-    
+
     // Text in Wörter aufteilen
     std::vector<String> words;
     int pos = 0;
     while (pos < text.length()) {
         // Überspringe Leerzeichen am Anfang
         while (pos < text.length() && text[pos] == ' ') pos++;
-        
+
         // Finde nächstes Leerzeichen
         int nextSpace = text.indexOf(' ', pos);
         if (nextSpace == -1) {
@@ -107,19 +107,19 @@ std::vector<String> splitTextIntoLines(const String &text, uint8_t textSize) {
         words.push_back(text.substring(pos, nextSpace));
         pos = nextSpace + 1;
     }
-    
+
     // Wörter zu Zeilen zusammenfügen
     String currentLine = "";
     for (size_t i = 0; i < words.size(); i++) {
         String testLine = currentLine;
         if (currentLine.length() > 0) testLine += " ";
         testLine += words[i];
-        
+
         // Prüfe ob diese Kombination auf die Zeile passt
         int16_t x1, y1;
         uint16_t lineWidth, h;
         display.getTextBounds(testLine, 0, OLED_DATA_START, &x1, &y1, &lineWidth, &h);
-        
+
         if (lineWidth <= SCREEN_WIDTH) {
             // Passt noch in diese Zeile
             currentLine = testLine;
@@ -134,40 +134,40 @@ std::vector<String> splitTextIntoLines(const String &text, uint8_t textSize) {
             }
         }
     }
-    
+
     // Letzte Zeile hinzufügen
     if (currentLine.length() > 0) {
         lines.push_back(currentLine);
     }
-    
+
     return lines;
 }
 
 void oledShowMultilineMessage(const String &message, uint8_t size) {
     std::vector<String> lines;
     int maxLines = 3;  // Maximale Anzahl Zeilen für size 2
-    
+
     // Erste Prüfung mit aktueller Größe
     lines = splitTextIntoLines(message, size);
-    
+
     // Wenn mehr als maxLines Zeilen, reduziere Textgröße
     if (lines.size() > maxLines && size > 1) {
         size = 1;
         lines = splitTextIntoLines(message, size);
     }
-    
+
     // Ausgabe
     display.setTextSize(size);
     int lineHeight = size * 8;
     int totalHeight = lines.size() * lineHeight;
     int startY = OLED_DATA_START + ((OLED_DATA_END - OLED_DATA_START - totalHeight) / 2);
-    
+
     uint8_t lineDistance = (lines.size() == 2) ? 5 : 0;
     for (size_t i = 0; i < lines.size(); i++) {
         display.setCursor(oled_center_h(lines[i]), startY + (i * lineHeight) + (i == 1 ? lineDistance : 0));
         display.print(lines[i]);
     }
-    
+
     display.display();
 }
 
@@ -175,12 +175,12 @@ void oledDisplayText(const String &message, uint8_t size) {
     oledcleardata();
     display.setTextSize(size);
     display.setTextWrap(false);
-    
+
     // Prüfe ob Text in eine Zeile passt
     int16_t x1, y1;
     uint16_t textWidth, h;
     display.getTextBounds(message, 0, 0, &x1, &y1, &textWidth, &h);
-   
+
     // Text passt in eine Zeile?
     if (textWidth <= SCREEN_WIDTH) {
         display.setCursor(oled_center_h(message), oled_center_v(message));
@@ -223,7 +223,7 @@ void oledShowTopRow() {
             }
         }
     }
-    
+
     display.display();
 }
 
@@ -255,7 +255,7 @@ void oledShowProgressBar(const uint8_t step, const uint8_t numSteps, const char*
     // clear data and bar area
     display.fillRect(0, OLED_DATA_START, SCREEN_WIDTH, SCREEN_HEIGHT-16, BLACK);
 
-    
+
     display.setTextWrap(false);
     display.setTextSize(2);
     display.setCursor(0, OLED_DATA_START+4);
@@ -285,7 +285,7 @@ void oledShowRemainingWeight(uint16_t remainingWeight) {
     display.setTextSize(1);
     display.setCursor(oled_center_h(tr(STR_WEIGHT_SENT_REST)), OLED_DATA_START + 4);
     display.print(tr(STR_WEIGHT_SENT_REST));
-    
+
     display.setTextSize(3);
     String weightStr = String(remainingWeight) + " g";
     display.setCursor(oled_center_h(weightStr), OLED_DATA_START + 22);
@@ -296,15 +296,15 @@ void oledShowRemainingWeight(uint16_t remainingWeight) {
 void oledShowConnectionError(const char* error, const String& ip) {
     oledcleardata();
     display.setTextSize(1);
-    
+
     // Error Message
     display.setCursor(oled_center_h(error), OLED_DATA_START + 4);
     display.print(error);
-    
+
     // IP Address
     display.setTextSize(1);
     display.setCursor(oled_center_h(ip), OLED_DATA_START + 24);
     display.print(ip);
-    
+
     display.display();
 }

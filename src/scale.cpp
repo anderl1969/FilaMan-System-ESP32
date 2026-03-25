@@ -50,7 +50,7 @@ void resetWeightFilter() {
   filteredWeight = 0.0f;
   lastDisplayedWeight = 0;
   lastStableWeight = 0;            // Reset stable weight for API actions
-  
+
   // Initialize buffer with zeros
   for (int i = 0; i < MOVING_AVERAGE_SIZE; i++) {
     weightBuffer[i] = 0.0f;
@@ -63,11 +63,11 @@ void resetWeightFilter() {
 float calculateMovingAverage() {
   float sum = 0.0f;
   int count = bufferFilled ? MOVING_AVERAGE_SIZE : bufferIndex;
-  
+
   for (int i = 0; i < count; i++) {
     sum += weightBuffer[i];
   }
-  
+
   return (count > 0) ? sum / count : 0.0f;
 }
 
@@ -88,33 +88,33 @@ int16_t processWeightReading(float rawWeight) {
   // Add to moving average buffer
   weightBuffer[bufferIndex] = rawWeight;
   bufferIndex = (bufferIndex + 1) % MOVING_AVERAGE_SIZE;
-  
+
   if (bufferIndex == 0) {
     bufferFilled = true;
   }
-  
+
   // Calculate moving average
   float avgWeight = calculateMovingAverage();
-  
+
   // Apply low-pass filter
   float smoothedWeight = applyLowPassFilter(avgWeight);
-  
+
   // Round to nearest gram
   int16_t newWeight = round(smoothedWeight);
-  
+
   // Update displayed weight if display threshold is reached
   if (abs(newWeight - lastDisplayedWeight) >= DISPLAY_THRESHOLD) {
     lastDisplayedWeight = newWeight;
   }
-  
+
   // Update global weight for API actions only if stable threshold is reached
   int16_t weightToReturn = weight; // Default: keep current weight
-  
+
   if (abs(newWeight - lastStableWeight) >= API_THRESHOLD) {
     lastStableWeight = newWeight;
     weightToReturn = newWeight;
   }
-  
+
   return weightToReturn;
 }
 
@@ -145,7 +145,7 @@ uint8_t tareScale() {
   Serial.println("Tare scale");
   scale.tare();
   resetWeightFilter();
-  
+
   return 1;
 }
 
@@ -161,13 +161,13 @@ void scale_loop(void * parameter) {
 
   for(;;) {
     unsigned long currentTime = millis();
-    
+
     // Only measure at defined intervals to reduce noise
     if (currentTime - lastMeasurementTime >= MEASUREMENT_INTERVAL_MS) {
-      if (scale.is_ready()) 
+      if (scale.is_ready())
       {
         // Waage manuell Taren
-        if (scaleTareRequest == true || (autoTare && scale_tare_counter >= 20)) 
+        if (scaleTareRequest == true || (autoTare && scale_tare_counter >= 20))
         {
           Serial.println("Re-Tare scale");
           oledDisplayText(tr(STR_TARE_SCALE));
@@ -189,15 +189,15 @@ void scale_loop(void * parameter) {
 
         // Get raw weight reading
         float rawWeight = scale.get_units();
-        
+
         // Process weight with stabilization
         int16_t stabilizedWeight = processWeightReading(rawWeight);
-        
+
         // Update global weight variable only if it changed significantly (for API actions)
         if (stabilizedWeight != weight) {
           weight = stabilizedWeight;
         }
-        
+
         // Prüfen ob die Waage korrekt genullt ist
         // Abweichung von 2g ignorieren
         if (autoTare && (rawWeight > 2 && rawWeight < 7) || rawWeight < -2)
@@ -214,11 +214,11 @@ void scale_loop(void * parameter) {
         if (currentTime - lastDebugTime > 2000) { // Print every 2 seconds
           lastDebugTime = currentTime;
         }
-        
+
         lastMeasurementTime = currentTime;
       }
     }
-    
+
     vTaskDelay(pdMS_TO_TICKS(10)); // Shorter delay for more responsive loop
   }
 }
@@ -237,7 +237,7 @@ void start_scale(bool touchSensorConnected) {
     calibrationValue = SCALE_DEFAULT_CALIBRATION_VALUE;
     scaleCalibrated = false;
   }
-  
+
   // auto Tare
   // Wenn Touch Sensor verbunden, dann autoTare auf false setzen
   // Danach prüfen was in NVS gespeichert ist
@@ -251,7 +251,7 @@ void start_scale(bool touchSensorConnected) {
 
   scale.begin(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN);
 
-  oledShowProgressBar(6, 7, DISPLAY_BOOT_TEXT, tr(STR_SEARCHING_SCALE));
+  oledShowProgressBar(6, actualSetupSteps, DISPLAY_BOOT_TEXT, tr(STR_SEARCHING_SCALE));
   for (uint16_t i = 0; i < 3000; i++) {
     yield();
     vTaskDelay(pdMS_TO_TICKS(1));
@@ -299,10 +299,10 @@ uint8_t calibrate_scale() {
   if (ScaleTask != NULL && xTaskGetCurrentTaskHandle() != ScaleTask) vTaskSuspend(ScaleTask);
 
   pauseMainTask = 1;
-  
+
   if (scale.wait_ready_timeout(1000))
   {
-    
+
     scale.set_scale();
     oledShowProgressBar(0, 3, tr(STR_SCALE_CAL), tr(STR_EMPTY_SCALE));
 
@@ -323,7 +323,7 @@ uint8_t calibrate_scale() {
       vTaskDelay(pdMS_TO_TICKS(1));
       esp_task_wdt_reset();
     }
-    
+
     float newCalibrationValue = scale.get_units(10);
     Serial.print("Result: ");
     Serial.println(newCalibrationValue);
@@ -358,7 +358,7 @@ uint8_t calibrate_scale() {
         vTaskDelay(pdMS_TO_TICKS(1));
         esp_task_wdt_reset();
       }
-      
+
       oledShowProgressBar(3, 3, tr(STR_SCALE_CAL), tr(STR_COMPLETED));
 
       // For some reason it is not possible to re-tare the scale here, it will result in a wdt timeout. Instead let the scale loop do the taring
@@ -386,12 +386,12 @@ uint8_t calibrate_scale() {
         esp_task_wdt_reset();
       }
       returnState = 0;
-    } 
+    }
   }
-  else 
+  else
   {
     Serial.println("HX711 not found.");
-    
+
     oledDisplayText(tr(STR_HX711_NOT_FOUND));
 
     for (uint16_t i = 0; i < 30000; i++) {
