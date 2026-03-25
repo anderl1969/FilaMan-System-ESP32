@@ -11,6 +11,7 @@
 #define NVS_NAMESPACE_SCALE                 "scale"
 #define NVS_KEY_CALIBRATION                 "cal_value"
 #define NVS_KEY_AUTOTARE                    "auto_tare"
+#define NVS_KEY_SCALE_ENABLED               "scale_enabled"
 
 #define NVS_NAMESPACE_SETTINGS             "settings"
 #define NVS_KEY_LANGUAGE                    "language"
@@ -73,5 +74,6 @@ extern uint8_t scaleTaskPrio;
 
 extern uint16_t defaultScaleCalibrationValue;
 
+extern bool scaleRebootRequest;
 extern u_int8_t actualSetupSteps;
 #endif

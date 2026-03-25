@@ -55,5 +55,6 @@ uint8_t scaleTaskPrio = 1;
 // ***** Task Prios
 
 // ***** common
+bool scaleRebootRequest = false;
 u_int8_t actualSetupSteps = NUM_SETUP_STEPS;
 // ***** common

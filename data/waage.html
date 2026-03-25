@@ -40,11 +40,25 @@
             </header>
 
             <div class="fm-card">
+                <h2>Scale Settings</h2>
+                <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                    <label class="status-pill" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" id="scalePresenceCheckbox" onchange="setScalePresence(this.checked);" {{scalePresence}}>
+                        <span>Enable Scale</span>
+                    </label>
+                    <button id="rebootBtn" class="fm-btn fm-btn-danger">Reboot Device</button>
+                </div>
+                <div style="color: lightcoral; display: inline-flex; position: relative; top: 10px;">
+                    <sup>After enabling/disabling the scale, the device must be restarted for the changes to take effect!</sup>
+                </div>
+            </div>
+
+            <div class="fm-card">
                 <h2>Scale Actions</h2>
                 <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
                     <button id="calibrateBtn" class="fm-btn fm-btn-primary">Calibrate Scale</button>
                     <button id="tareBtn" class="fm-btn fm-btn-outline">Tare Scale</button>
-                    
+
                     <label class="status-pill" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
                         <input type="checkbox" id="autoTareCheckbox" onchange="setAutoTare(this.checked);" {{autoTare}}>
                         <span>Enable Auto-TARE</span>
@@ -84,7 +98,7 @@
 
         function connectWebSocket() {
             ws = new WebSocket(`ws://${window.location.hostname}/ws`);
-            
+
             ws.onopen = () => {
                 statusMessage.textContent = 'Scale connected via WebSocket';
                 enableButtons(true);
@@ -118,6 +132,7 @@
         function enableButtons(enabled) {
             document.getElementById('calibrateBtn').disabled = !enabled;
             document.getElementById('tareBtn').disabled = !enabled;
+            document.getElementById('rebootBtn').disabled = !enabled;
         }
 
         document.getElementById('calibrateBtn').addEventListener('click', () => {
@@ -139,10 +154,25 @@
             }));
         });
 
+        document.getElementById('rebootBtn').addEventListener('click', () => {
+            ws.send(JSON.stringify({
+                type: 'scale',
+                payload: 'reboot'
+            }));
+        });
+
         function setAutoTare(enabled) {
             ws.send(JSON.stringify({
                 type: 'scale',
                 payload: 'setAutoTare',
+                enabled: enabled
+            }));
+        }
+
+        function setScalePresence(enabled) {
+            ws.send(JSON.stringify({
+                type: 'scale',
+                payload: 'setScalePresence',
                 enabled: enabled
             }));
         }
