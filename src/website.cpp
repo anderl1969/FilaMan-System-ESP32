@@ -58,7 +58,7 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventTyp
                 "\"freeHeap\":" + String(ESP.getFreeHeap()/1024) + ","
                 "\"filaman_connected\":" + String(filamanConnected) + ","
                 "\"registered\":" + String(filamanRegistered) + ","
-                "\"scalePresence\":" + String(scalePresence ? "true" : "false") + ","
+                "\"scalePresence\":" + String(scaleEnabled ? "true" : "false") + ","
                 "\"autoTare\":" + String(autoTare ? "true" : "false") + ""
                 "}");
         }
@@ -139,7 +139,7 @@ void setupWebserver(AsyncWebServer &server) {
     server.on("/waage", HTTP_GET, [](AsyncWebServerRequest *request){
         Serial.println("Web: Request /waage");
         String html = readFile("/waage.html");
-        html.replace("{{scalePresence}}", scalePresence ? "checked" : "");
+        html.replace("{{scalePresence}}", scaleEnabled ? "checked" : "");
         html.replace("{{autoTare}}", autoTare ? "checked" : "");
         auto response = request->beginResponse(200, "text/html", html);
         response->addHeader("Cache-Control", NO_CACHE);

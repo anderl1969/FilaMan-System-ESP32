@@ -4,7 +4,8 @@
 #include <Arduino.h>
 #include "HX711.h"
 
-uint8_t setScalePresence(bool scalePresenceValue);
+bool isScaleEnabled();
+uint8_t setScalePresence(bool scaleEnabledValue);
 uint8_t setAutoTare(bool autoTareValue);
 void start_scale(bool touchSensorConnected);
 uint8_t calibrate_scale();
@@ -24,7 +25,7 @@ extern uint8_t scale_tare_counter;
 extern bool scaleTareRequest;
 extern uint8_t pauseMainTask;
 extern bool scaleCalibrated;
-extern bool scalePresence;
+extern bool scaleEnabled;
 extern bool autoTare;
 extern bool scaleCalibrationActive;
 extern volatile bool scaleCalibrationRequest;

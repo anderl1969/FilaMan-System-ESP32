@@ -88,6 +88,9 @@ enum StringID : uint8_t {
     STR_UPDATE,
     STR_DOWNLOAD,
 
+    // No-Scale mode
+    STR_NOSCALE_PROMPT,
+
     STR_COUNT  // must be last
 };
 

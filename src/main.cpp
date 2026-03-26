@@ -30,6 +30,13 @@ void setup() {
   Serial.printf("ESP32 Chip ID = %04X", (uint16_t)(chipid >> 32)); //print High 2 bytes
   Serial.printf("%08X\n", (uint32_t)chipid); //print Low 4bytes.
 
+  // Check if scale support is enabled
+  // isScaleEnabled() reads from Preferences and stores the setting in scaleEnabled
+  // after initial call use scaleEnabled
+  if ( !isScaleEnabled() ){
+    actualSetupSteps--;
+  }
+
   // Initialize SPIFFS
   initializeFileSystem();
 
@@ -60,8 +67,15 @@ void setup() {
   }
 
   // Scale
-  start_scale(touchSensorConnected);
-  scaleTareRequest = true;
+  if (scaleEnabled){
+      start_scale(touchSensorConnected);
+      scaleTareRequest = true;
+  }
+  else {
+    // Clear Display after Boot
+    // oledShowWeight(0);
+    oledDisplayText(tr(STR_NOSCALE_PROMPT));
+  }
 
   // WDT initialisieren mit 10 Sekunden Timeout
   bool panic = true; // Wenn true, löst ein WDT-Timeout einen System-Panik aus
@@ -119,11 +133,15 @@ void loop() {
           oledShowConnectionError(tr(STR_API_CONN_LOST), WiFi.localIP().toString());
           oledSetPriority(DISPLAY_PRIORITY_WARNING, 3000);
           mainTaskWasPaused = true;
+      } else if (!scaleEnabled) {
+          // everything fine again: without scale manual clearing of the error msg is needed
+          // oledShowWeight(0);
+          oledDisplayText(tr(STR_NOSCALE_PROMPT));
       }
   }
 
-  // Überprüfe den Status des Touch Sensors
-  if (touchSensorConnected && digitalRead(TTP223_PIN) == HIGH && currentMillis - lastButtonPress > debounceDelay)
+  // Überprüfe den Status des Touch Sensors (nur wenn Waage aktiviert!)
+  if (scaleEnabled && touchSensorConnected && digitalRead(TTP223_PIN) == HIGH && currentMillis - lastButtonPress > debounceDelay)
   {
     lastButtonPress = currentMillis;
     scaleTareRequest = true;
@@ -150,7 +168,7 @@ void loop() {
   }
 
   // If scale is not calibrated, only show a warning
-  if (!scaleCalibrated)
+  if (scaleEnabled && !scaleCalibrated)
   {
     // Do not show the warning if the calibratin process is onging
     if(!scaleCalibrationActive){
@@ -158,7 +176,8 @@ void loop() {
       vTaskDelay(pdMS_TO_TICKS(1000));
     }
   }
-  else
+
+  if (scaleEnabled && scaleCalibrated)
   {
     // Ausgabe der Waage auf Display
     // Block weight display during NFC write operations and higher-priority display messages

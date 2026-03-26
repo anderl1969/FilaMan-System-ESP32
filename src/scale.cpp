@@ -35,7 +35,7 @@ uint8_t scale_tare_counter = 0;
 bool scaleTareRequest = false;
 uint8_t pauseMainTask = 0;
 bool scaleCalibrated;
-bool scalePresence = true;
+bool scaleEnabled = true;
 bool autoTare = true;
 bool scaleCalibrationActive = false;
 volatile bool scaleCalibrationRequest = false;
@@ -128,15 +128,27 @@ int16_t getFilteredDisplayWeight() {
 }
 
 // ##### Funktionen für Waage #####
-uint8_t setScalePresence(bool scalePresenceValue){
+bool isScaleEnabled(){
+  Serial.println("Prüfe Status Waage (aktiviert/dekativiert)");
+
+  // NVS lesen
+  Preferences preferences;
+  preferences.begin(NVS_NAMESPACE_SCALE, true); // true = readonly
+  scaleEnabled = preferences.getBool(NVS_KEY_SCALE_ENABLED, scaleEnabled);
+  preferences.end();
+
+  return scaleEnabled;
+}
+
+uint8_t setScalePresence(bool scaleEnabledValue){
   Serial.print("Set Scale Presence to ");
-  Serial.println(scalePresenceValue);
-  scalePresence = scalePresenceValue;
+  Serial.println(scaleEnabledValue);
+  scaleEnabled = scaleEnabledValue;
 
   // Speichern mit NVS
   Preferences preferences;
   preferences.begin(NVS_NAMESPACE_SCALE, false); // false = readwrite
-  preferences.putBool(NVS_KEY_SCALE_ENABLED, scalePresence);
+  preferences.putBool(NVS_KEY_SCALE_ENABLED, scaleEnabled);
   preferences.end();
 
   return 1;
