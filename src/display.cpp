@@ -192,6 +192,12 @@ void oledDisplayText(const String &message, uint8_t size) {
 }
 
 void oledShowTopRow() {
+    const u_int8_t rightmost_x = 108;
+    const u_int8_t x_offset = 25;
+    const u_int8_t symbol_width =16;
+    const u_int8_t symbol_height =16;
+    u_int8_t x_pos = rightmost_x;
+
     oledclearline();
 
     display.setTextSize(1);
@@ -201,27 +207,45 @@ void oledShowTopRow() {
 
     iconToggle = !iconToggle;
 
+    // draw symbols from right to left
     // Do not show status indicators during boot
     if(!booting){
-        if (filamanConnected) {
-            display.drawBitmap(80, 0, bitmap_spoolman_on , 16, 16, WHITE);
+
+        // WiFi
+        x_pos = rightmost_x;
+        if (wifiOn == 1) {
+            display.drawBitmap(x_pos, 0, wifi_on , symbol_width, symbol_height, WHITE);
         } else {
             if(iconToggle){
-                display.drawBitmap(80, 0, bitmap_spoolman_on , 16, 16, WHITE);
-                display.drawLine(80, 15, 96, 0, WHITE);
-                display.drawLine(81, 15, 97, 0, WHITE);
+                display.drawBitmap(x_pos, 0, wifi_on , symbol_width, symbol_height, WHITE);
+                display.drawLine(x_pos, symbol_height-1, x_pos + symbol_width, 0, WHITE);
+                display.drawLine(x_pos+1, symbol_height-1, x_pos+1 + symbol_width, 0, WHITE);
             }
         }
 
-        if (wifiOn == 1) {
-            display.drawBitmap(107, 0, wifi_on , 16, 16, WHITE);
+        // Backend
+        x_pos -= x_offset;  // change x position to the left
+        if (filamanConnected) {
+            display.drawBitmap(x_pos, 0, bitmap_spoolman_on , symbol_width, symbol_height, WHITE);
         } else {
             if(iconToggle){
-                display.drawBitmap(107, 0, wifi_on , 16, 16, WHITE);
-                display.drawLine(107, 15, 123, 0, WHITE);
-                display.drawLine(108, 15, 124, 0, WHITE);
+                display.drawBitmap(x_pos, 0, bitmap_spoolman_on , symbol_width, symbol_height, WHITE);
+                display.drawLine(x_pos, symbol_height-1, x_pos + symbol_width, 0, WHITE);
+                display.drawLine(x_pos+1, symbol_height-1, x_pos+1 + symbol_width, 0, WHITE);
             }
         }
+
+        // Scale
+        x_pos -= x_offset;  // change x position to the left
+        if (scaleEnabled) {
+            display.drawBitmap(x_pos, 0, bitmap_scale_on , symbol_width, symbol_height, WHITE);
+        } else {
+            display.drawBitmap(x_pos, 0, bitmap_scale_on , symbol_width, symbol_height, WHITE);
+            display.drawLine(x_pos-1, symbol_height-1, x_pos-1 + symbol_width, 0, WHITE);
+            display.drawLine(x_pos, symbol_height-1, x_pos + symbol_width, 0, WHITE);
+            display.drawLine(x_pos+1, symbol_height-1, x_pos+1 + symbol_width, 0, WHITE);
+        }
+
     }
 
     display.display();
