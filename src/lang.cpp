@@ -78,6 +78,8 @@ static const char EN_WIFI_RECONN[]       = "WiFi reconnecting";
 static const char EN_UPDATE[]            = "Update";
 static const char EN_DOWNLOAD[]          = "Download";
 
+static const char EN_NOSCALE_PROMPT[]    = "ready...";
+
 // =====================================================================
 // German strings
 // =====================================================================
@@ -151,6 +153,8 @@ static const char DE_WIFI_RECONN[]       = "WiFi Neuverbindung";
 
 static const char DE_UPDATE[]            = "Update";
 static const char DE_DOWNLOAD[]          = "Download";
+
+static const char DE_NOSCALE_PROMPT[]    = "bereit...";
 
 // =====================================================================
 // String table: [StringID][Lang]
@@ -233,6 +237,9 @@ static const char* const stringTable[STR_COUNT][LANG_COUNT] = {
     // OTA
     { EN_UPDATE,           DE_UPDATE },
     { EN_DOWNLOAD,         DE_DOWNLOAD },
+
+    // No-Scale mode
+    { EN_NOSCALE_PROMPT,   DE_NOSCALE_PROMPT },
 };
 
 const char* tr(StringID id) {

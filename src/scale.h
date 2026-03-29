@@ -23,6 +23,7 @@ extern uint8_t scale_tare_counter;
 extern bool scaleTareRequest;
 extern uint8_t pauseMainTask;
 extern bool scaleCalibrated;
+extern bool scaleConnected;
 extern bool autoTare;
 extern bool scaleCalibrationActive;
 extern volatile bool scaleCalibrationRequest;

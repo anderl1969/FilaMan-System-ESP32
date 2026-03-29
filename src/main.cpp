@@ -61,7 +61,9 @@ void setup() {
 
   // Scale
   start_scale(touchSensorConnected);
-  scaleTareRequest = true;
+  if (scaleConnected){
+    scaleTareRequest = true;
+  }
 
   // WDT initialisieren mit 10 Sekunden Timeout
   bool panic = true; // Wenn true, löst ein WDT-Timeout einen System-Panik aus
@@ -72,6 +74,11 @@ void setup() {
 
   // Aktuellen Task (loopTask) zum Watchdog hinzufügen
   esp_task_wdt_add(NULL);
+
+  if ( !scaleConnected ) {
+    // Clear Display after Boot
+    oledDisplayText(tr(STR_NOSCALE_PROMPT));
+  }
 }
 
 
@@ -121,11 +128,14 @@ void loop() {
           oledShowConnectionError(tr(STR_API_CONN_LOST), WiFi.localIP().toString());
           oledSetPriority(DISPLAY_PRIORITY_WARNING, 3000);
           mainTaskWasPaused = true;
+      } else if ( !scaleConnected ){
+          // everything fine again: without scale manual clearing of the error msg is needed
+          oledDisplayText(tr(STR_NOSCALE_PROMPT));
       }
   }
 
-  // Überprüfe den Status des Touch Sensors
-  if (touchSensorConnected && digitalRead(TTP223_PIN) == HIGH && currentMillis - lastButtonPress > debounceDelay)
+  // Überprüfe den Status des Touch Sensors (nur wenn Waage vorhanden)
+  if (scaleConnected && touchSensorConnected && digitalRead(TTP223_PIN) == HIGH && currentMillis - lastButtonPress > debounceDelay)
   {
     lastButtonPress = currentMillis;
     scaleTareRequest = true;
@@ -160,7 +170,7 @@ void loop() {
   }
 
   // If scale is not calibrated, only show a warning
-  if (!scaleCalibrated)
+  if (scaleConnected && !scaleCalibrated)
   {
     // Do not show the warning if the calibratin process is onging
     if(!scaleCalibrationActive){
@@ -168,7 +178,8 @@ void loop() {
       vTaskDelay(pdMS_TO_TICKS(1000));
     }
   }
-  else
+
+  if (scaleConnected && scaleCalibrated)
   {
     // Ausgabe der Waage auf Display
     // Block weight display during NFC write operations and higher-priority display messages

@@ -35,9 +35,21 @@ uint8_t scale_tare_counter = 0;
 bool scaleTareRequest = false;
 uint8_t pauseMainTask = 0;
 bool scaleCalibrated;
+bool scaleConnected;
 bool autoTare = true;
 bool scaleCalibrationActive = false;
 volatile bool scaleCalibrationRequest = false;
+
+/**
+ * Non blocking wait function
+ */
+void friendlyWait(uint16_t ticks) {
+    for (uint16_t i = 0; i < ticks; i++) {
+    yield();
+    vTaskDelay(pdMS_TO_TICKS(1));
+    esp_task_wdt_reset();
+  }
+}
 
 // ##### Weight stabilization functions #####
 
@@ -224,6 +236,102 @@ void scale_loop(void * parameter) {
   }
 }
 
+long readHX711Raw() {
+  long value = 0;
+
+  for (int i = 0; i < 24; i++) {
+    digitalWrite(LOADCELL_SCK_PIN, HIGH);
+    delayMicroseconds(1);
+
+    value = (value << 1) | digitalRead(LOADCELL_DOUT_PIN);
+
+    digitalWrite(LOADCELL_SCK_PIN, LOW);
+    delayMicroseconds(1);
+  }
+
+  // Gain = 128 (1 extra pulse)
+  digitalWrite(LOADCELL_SCK_PIN, HIGH);
+  delayMicroseconds(1);
+  digitalWrite(LOADCELL_SCK_PIN, LOW);
+
+  return value;
+}
+
+bool deepSearchScale() {
+  // without pull-up resistor (10k) on LOADCELL_DOUT_PIN the hx711 lib functions
+  // are not reliable in detecting a missing chip
+  // these tests work even without pull-up resistor
+  const uint32_t timeout = 1000;
+  const int samples = 10;
+
+  pinMode(LOADCELL_DOUT_PIN, INPUT);
+  pinMode(LOADCELL_SCK_PIN, OUTPUT);
+  digitalWrite(LOADCELL_SCK_PIN, LOW);
+
+  //delay(500);
+  friendlyWait(500);
+
+  // 1. HX711 vorhanden?
+  uint32_t start = millis();
+  while (digitalRead(LOADCELL_DOUT_PIN) == HIGH) {
+    if (millis() - start > timeout) {
+      Serial.println("HX711 not found (DOUT stays HIGH).");
+      return false;
+    }
+  }
+
+  Serial.println("HX711 seems to answer...");
+
+  // 2. Mehrere Werte lesen
+  long values[samples];
+
+  for (int i = 0; i < samples; i++) {
+    // warten bis bereit
+    uint32_t t = millis();
+    while (digitalRead(LOADCELL_DOUT_PIN) == HIGH) {
+      if (millis() - t > timeout) {
+        Serial.println("HX711 not found (Timeout during read).");
+        return false;
+      }
+    }
+
+    values[i] = readHX711Raw();
+    delay(50);
+  }
+
+  // 3. Analyse
+  int invalidCount = 0;
+
+  for (int i = 0; i < samples; i++) {
+    if (values[i] == 0 || values[i] == 0xFFFFFF) {
+      invalidCount++;
+    }
+  }
+
+  // 4. Entscheidungen
+
+  // Kein Sensor
+  if (invalidCount > samples / 2) {
+    Serial.println("HX711 not ready (Loadcell missing).");
+    return false;
+  }
+
+  Serial.println("HX711 found.");
+  return true;
+}
+
+bool scaleDetected(){
+  // Step 1: use hx711 library functions (need pull-up resistor to recognize missing hx711)
+  if ( !(scale.wait_ready_timeout(1000))) {
+    Serial.println("HX711 not found (pull-up resistor installed).");
+    return false;
+  }
+
+  //Step 2: when pull-up resistor is missing, then deep search...
+  return deepSearchScale();
+
+}
+
 void start_scale(bool touchSensorConnected) {
   Serial.println("Prüfe Calibration Value");
   float calibrationValue;
@@ -253,39 +361,48 @@ void start_scale(bool touchSensorConnected) {
   scale.begin(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN);
 
   oledShowProgressBar(5, NUM_SETUP_STEPS, DISPLAY_BOOT_TEXT, tr(STR_SEARCHING_SCALE));
-  for (uint16_t i = 0; i < 3000; i++) {
-    yield();
-    vTaskDelay(pdMS_TO_TICKS(1));
-    esp_task_wdt_reset();
+  friendlyWait(3000);
+  // for (uint16_t i = 0; i < 3000; i++) {
+  //   yield();
+  //   vTaskDelay(pdMS_TO_TICKS(1));
+  //   esp_task_wdt_reset();
+  // }
+
+  // while(!scale.is_ready()) {
+  //   vTaskDelay(pdMS_TO_TICKS(5000));
+  // }
+
+  scaleConnected = scaleDetected();
+  if ( scaleConnected ) {
+    scale.set_scale(calibrationValue);
+    //vTaskDelay(pdMS_TO_TICKS(5000));
+
+    // Initialize weight stabilization filter
+    resetWeightFilter();
+
+    // Display Gewicht
+    oledShowWeight(0);
+
+    Serial.println("starte Scale Task");
+    BaseType_t result = xTaskCreatePinnedToCore(
+      scale_loop, /* Function to implement the task */
+      "ScaleLoop", /* Name of the task */
+      2048,  /* Stack size in words */
+      NULL,  /* Task input parameter */
+      scaleTaskPrio,  /* Priority of the task */
+      &ScaleTask,  /* Task handle. */
+      scaleTaskCore); /* Core where the task should run */
+
+    if (result != pdPASS) {
+        Serial.println("Fehler beim Erstellen des ScaleLoop-Tasks");
+    } else {
+        Serial.println("ScaleLoop-Task erfolgreich erstellt");
+    }
   }
-
-  while(!scale.is_ready()) {
-    vTaskDelay(pdMS_TO_TICKS(5000));
-  }
-
-  scale.set_scale(calibrationValue);
-  //vTaskDelay(pdMS_TO_TICKS(5000));
-
-  // Initialize weight stabilization filter
-  resetWeightFilter();
-
-  // Display Gewicht
-  oledShowWeight(0);
-
-  Serial.println("starte Scale Task");
-  BaseType_t result = xTaskCreatePinnedToCore(
-    scale_loop, /* Function to implement the task */
-    "ScaleLoop", /* Name of the task */
-    2048,  /* Stack size in words */
-    NULL,  /* Task input parameter */
-    scaleTaskPrio,  /* Priority of the task */
-    &ScaleTask,  /* Task handle. */
-    scaleTaskCore); /* Core where the task should run */
-
-  if (result != pdPASS) {
-      Serial.println("Fehler beim Erstellen des ScaleLoop-Tasks");
-  } else {
-      Serial.println("ScaleLoop-Task erfolgreich erstellt");
+  else {
+    Serial.println("Kann kein HX711 Board finden !");            // Sende Text "Kann kein..." an seriellen Monitor
+    oledDisplayText(tr(STR_HX711_NOT_FOUND));
+    vTaskDelay(pdMS_TO_TICKS(2000));
   }
 }
 
