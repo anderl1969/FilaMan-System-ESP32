@@ -196,6 +196,7 @@ void scale_loop(void * parameter) {
         // Update global weight variable only if it changed significantly (for API actions)
         if (stabilizedWeight != weight) {
           weight = stabilizedWeight;
+          oledResetActivityTimer(); // Wake display on weight change
         }
         
         // Prüfen ob die Waage korrekt genullt ist

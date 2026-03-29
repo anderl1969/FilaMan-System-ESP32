@@ -30,6 +30,15 @@ void oledcleardata();
 int oled_center_h(const String &text);
 int oled_center_v(const String &text);
 
+// Display sleep management
+void oledWake();
+void oledSleep();
+void oledResetActivityTimer();
+void oledCheckSleep();
+bool isOledAsleep();
+void loadOledSleepTimeout();
+void saveOledSleepTimeout(uint16_t timeoutSecs);
+
 void oledShowProgressBar(const uint8_t step, const uint8_t numSteps, const char* largeText, const char* statusMessage);
 
 void oledShowWeight(int16_t weight);

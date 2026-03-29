@@ -272,6 +272,31 @@ void setupWebserver(AsyncWebServer &server) {
         request->send(200, "application/json", "{\"success\": true}");
     });
 
+    // Display Settings API
+    server.on("/api/display", HTTP_GET, [](AsyncWebServerRequest *request){
+        JsonDocument doc;
+        doc["sleepTimeout"] = oledSleepTimeout;
+        String response;
+        serializeJson(doc, response);
+        request->send(200, "application/json", response);
+    });
+
+    server.on("/api/display", HTTP_POST, [](AsyncWebServerRequest *request){}, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total){
+        JsonDocument doc;
+        DeserializationError error = deserializeJson(doc, (const uint8_t*)data, len);
+        if (error) {
+            request->send(400, "application/json", "{\"success\": false, \"error\": \"Invalid JSON\"}");
+            return;
+        }
+        if (!doc["sleepTimeout"].is<int>()) {
+            request->send(400, "application/json", "{\"success\": false, \"error\": \"Missing sleepTimeout\"}");
+            return;
+        }
+        uint16_t timeout = (uint16_t)constrain((int)doc["sleepTimeout"], 0, 3600);
+        saveOledSleepTimeout(timeout);
+        request->send(200, "application/json", "{\"success\": true}");
+    });
+
     server.on("/reboot", HTTP_GET, [](AsyncWebServerRequest *request){
         request->send(200, "text/plain", "Rebooting...");
         delay(500);

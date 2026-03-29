@@ -5,6 +5,7 @@
 #include "main.h"
 #include <cstring>
 #include "lang.h"
+#include <Preferences.h>
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
@@ -15,6 +16,60 @@ bool iconToggle = false;
 static DisplayPriority currentPriority = DISPLAY_PRIORITY_NONE;
 static unsigned long prioritySetTime = 0;
 static unsigned long priorityMinDuration = 0;
+
+// Display sleep management
+static bool oledAsleep = false;
+static unsigned long lastActivityMillis = 0;
+
+void oledWake() {
+    if (oledAsleep) {
+        display.ssd1306_command(SSD1306_DISPLAYON);
+        oledAsleep = false;
+    }
+    lastActivityMillis = millis();
+}
+
+void oledSleep() {
+    if (!oledAsleep) {
+        display.ssd1306_command(SSD1306_DISPLAYOFF);
+        oledAsleep = true;
+    }
+}
+
+void oledResetActivityTimer() {
+    lastActivityMillis = millis();
+    if (oledAsleep) {
+        oledWake();
+    }
+}
+
+void oledCheckSleep() {
+    if (oledSleepTimeout == 0 || oledAsleep) return;
+    if (millis() - lastActivityMillis >= (unsigned long)oledSleepTimeout * 1000UL) {
+        oledSleep();
+    }
+}
+
+bool isOledAsleep() {
+    return oledAsleep;
+}
+
+void loadOledSleepTimeout() {
+    Preferences preferences;
+    preferences.begin(NVS_NAMESPACE_SETTINGS, true);
+    oledSleepTimeout = preferences.getUShort(NVS_KEY_OLED_SLEEP, 60);
+    preferences.end();
+    Serial.print("OLED sleep timeout loaded: ");
+    Serial.println(oledSleepTimeout);
+}
+
+void saveOledSleepTimeout(uint16_t timeoutSecs) {
+    oledSleepTimeout = timeoutSecs;
+    Preferences preferences;
+    preferences.begin(NVS_NAMESPACE_SETTINGS, false);
+    preferences.putUShort(NVS_KEY_OLED_SLEEP, timeoutSecs);
+    preferences.end();
+}
 
 bool oledCanUpdate(DisplayPriority newPriority) {
     if (currentPriority == DISPLAY_PRIORITY_NONE) return true;
@@ -55,6 +110,9 @@ void setupDisplay() {
     display.setTextColor(WHITE);
     display.clearDisplay();
 
+    // Load sleep timeout from NVS
+    loadOledSleepTimeout();
+    lastActivityMillis = millis();
 
     oledShowTopRow();
     oledShowProgressBar(0, 7, DISPLAY_BOOT_TEXT, tr(STR_DISPLAY_INIT));

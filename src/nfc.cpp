@@ -2050,6 +2050,9 @@ void scanRfidTask(void * parameter) {
         // Set the current tag as not processed
         tagProcessed = false;
 
+        // Wake display when a tag is detected
+        oledResetActivityTimer();
+
         // Display some basic information about the card
         Serial.println("Found an ISO14443A card");
 

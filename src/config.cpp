@@ -42,7 +42,9 @@ String filamanToken = "";
 bool filamanRegistered = false;
 // ***** API
 
-// ***** Bambu Auto Set Spool
+// ***** Display Sleep
+uint16_t oledSleepTimeout = 60; // Default 60 seconds (0 = disabled)
+// ***** Display Sleep
 
 // ***** Task Prios
 uint8_t rfidTaskCore = 1;

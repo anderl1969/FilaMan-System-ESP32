@@ -127,6 +127,7 @@ void loop() {
   {
     lastButtonPress = currentMillis;
     scaleTareRequest = true;
+    oledResetActivityTimer(); // Wake display on touch press
   }
 
   // Überprüfe regelmäßig die WLAN-Verbindung
@@ -139,6 +140,7 @@ void loop() {
   if (intervalElapsed(currentMillis, lastTopRowUpdateTime, DISPLAY_UPDATE_INTERVAL)) 
   {
     oledShowTopRow();
+    oledCheckSleep(); // Put display to sleep if timeout elapsed
     // Clean up dead websocket clients periodically instead of on connect
     if(currentMillis % 10000 < 50) ws.cleanupClients(); 
   }

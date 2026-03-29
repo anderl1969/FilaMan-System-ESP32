@@ -14,6 +14,7 @@
 
 #define NVS_NAMESPACE_SETTINGS             "settings"
 #define NVS_KEY_LANGUAGE                    "language"
+#define NVS_KEY_OLED_SLEEP                  "oled_sleep"
 #define SCALE_DEFAULT_CALIBRATION_VALUE     430.0f;
 
 #define OLED_RESET                          -1      // Reset pin # (or -1 if sharing Arduino reset pin)
@@ -70,4 +71,5 @@ extern uint8_t scaleTaskCore;
 extern uint8_t scaleTaskPrio;
 
 extern uint16_t defaultScaleCalibrationValue;
+extern uint16_t oledSleepTimeout;
 #endif
