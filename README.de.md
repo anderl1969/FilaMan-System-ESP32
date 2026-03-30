@@ -2,17 +2,18 @@
 
 ⚠️ **Wichtig: Ab Version 3.0.0 erfordert dieses System das [FilaMan-System](https://github.com/Fire-Devils/filaman-system) Backend. Frühere direkte Integrationen (Spoolman, MQTT, Bambu Lab) wurden in das zentrale FilaMan-System verschoben.**
 
-FilaMan ist ein Werkzeug zur Filamentverwaltung für den 3D-Druck. Es verwendet ESP32-Hardware zur Gewichtsmessung und Verwaltung von NFC-Tags. 
-Benutzer können Filamentspulen verwalten und das Gerät über eine Weboberfläche konfigurieren. 
+FilaMan ist ein Werkzeug zur Filamentverwaltung für den 3D-Druck. Es verwendet ESP32-Hardware zur Gewichtsmessung und Verwaltung von NFC-Tags.
+Benutzer können Filamentspulen verwalten und das Gerät über eine Weboberfläche konfigurieren.
 Das System integriert sich nahtlos in das [FilaMan-System](https://github.com/Fire-Devils/filaman-system).
 
+**NEU ab 3.3.1:** Eine abgespeckte Version ohne Waage ist ebenfalls möglich. Details finden sich unter [NFC-only Modus](docs/NFC-only_mode_de.md).
 
 ![Waage](./img/scale_trans.png)
 
 
-Weitere Bilder finden Sie im [img Ordner](/img/)  
-oder auf meiner Website: [FilaMan Website](https://www.filaman.app)  
-Deutsches Erklärvideo: [Youtube](https://youtu.be/uNDe2wh9SS8?si=b-jYx4I1w62zaOHU)  
+Weitere Bilder finden Sie im [img Ordner](/img/)
+oder auf meiner Website: [FilaMan Website](https://www.filaman.app)
+Deutsches Erklärvideo: [Youtube](https://youtu.be/uNDe2wh9SS8?si=b-jYx4I1w62zaOHU)
 Discord Server: [https://discord.gg/my7Gvaxj2v](https://discord.gg/my7Gvaxj2v)
 
 ## NEU: Recycling Fabrik
@@ -27,7 +28,7 @@ dass die Spulen automatisch erkannt und über die FilaMan-Waage direkt in das Fi
 
 **Was ist die Recycling Fabrik?**
 
-Die Recycling Fabrik ist ein deutsches Unternehmen, das sich der Entwicklung und Herstellung von nachhaltigem 3D-Druck-Filament verschrieben hat. 
+Die Recycling Fabrik ist ein deutsches Unternehmen, das sich der Entwicklung und Herstellung von nachhaltigem 3D-Druck-Filament verschrieben hat.
 Ihre Filamente bestehen zu 100 % aus recyceltem Material von Endkunden und aus der Industrie – für eine umweltbewusste und ressourcenschonende Zukunft.
 
 Weitere Informationen und Produkte finden Sie hier: [www.recyclingfabrik.com](https://www.recyclingfabrik.com)
@@ -45,7 +46,7 @@ Weitere Informationen und Produkte finden Sie hier: [www.recyclingfabrik.com](ht
 
 ### Weboberflächen-Features
 - **Echtzeit-Updates:** WebSocket-Verbindung für Live-Datenaktualisierungen.
-- **NFC-Tag-Verwaltung:** 
+- **NFC-Tag-Verwaltung:**
 	- Schreiben von Filamentdaten auf NFC-Tags.
 	- Unterstützt automatische Spulenerkennung in kompatiblen Systemen.
 - **FilaMan-System Integration:**
@@ -122,7 +123,7 @@ Wenn Sie einen Hersteller-NFC-Tag zum ersten Mal scannen:
 | PN532 SCL         | 22        |
 | TTP223 I/O        | 25        |
 
-**!! Stellen Sie sicher, dass die DIP-Schalter am PN532 auf I2C eingestellt sind.**  
+**!! Stellen Sie sicher, dass die DIP-Schalter am PN532 auf I2C eingestellt sind.**
 **Verwenden Sie den 3V-Pin des ESP für den Touch-Sensor.**
 
 ![Verkabelung](./img/Schaltplan.png)
@@ -130,10 +131,10 @@ Wenn Sie einen Hersteller-NFC-Tag zum ersten Mal scannen:
 ![meineVerkabelung](./img/IMG_2589.jpeg)
 ![meineVerkabelung](./img/IMG_2590.jpeg)
 
-*Die Wägezelle wird an die meisten HX711-Module wie folgt angeschlossen:  
-E+ rot  
-E- schwarz  
-A- weiß  
+*Die Wägezelle wird an die meisten HX711-Module wie folgt angeschlossen:
+E+ rot
+E- schwarz
+A- weiß
 A+ grün*
 
 ## Software-Abhängigkeiten
