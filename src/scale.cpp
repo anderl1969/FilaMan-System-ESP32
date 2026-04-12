@@ -360,7 +360,7 @@ void start_scale(bool touchSensorConnected) {
 
   scale.begin(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN);
 
-  oledShowProgressBar(5, NUM_SETUP_STEPS, DISPLAY_BOOT_TEXT, tr(STR_SEARCHING_SCALE));
+  oledShowProgressBar(6, NUM_SETUP_STEPS, DISPLAY_BOOT_TEXT, tr(STR_SEARCHING_SCALE));
   friendlyWait(3000);
 
   scaleConnected = scaleDetected();

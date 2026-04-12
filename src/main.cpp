@@ -14,6 +14,7 @@
 #include "esp_task_wdt.h"
 #include "commonFS.h"
 #include "lang.h"
+#include "sound.h"
 
 bool mainTaskWasPaused = 0;
 uint8_t scaleTareCounter = 0;
@@ -51,6 +52,11 @@ void setup() {
   // NFC Reader
   startNfc();
 
+  // Buzzer
+  // initBuzzer();
+  // player.begin();
+  startSoundPlayer();
+
   // Touch Sensor
   pinMode(TTP223_PIN, INPUT_PULLUP);
   if (digitalRead(TTP223_PIN) == LOW)
@@ -79,6 +85,9 @@ void setup() {
     // Clear Display after Boot
     oledDisplayText(tr(STR_NOSCALE_PROMPT));
   }
+
+  // Setup finished, play Start Melody
+  player.playSound(SND_BOOT);
 }
 
 
@@ -226,51 +235,52 @@ void loop() {
         weightSend = 0;
       }
 
-    lastWeight = weight;
+      lastWeight = weight;
 
-    // Wenn ein Tag erkannt wurde und das Gewicht stabil ist (4+ seconds), an FilaMan senden
-    if (weightCounterToApi > 3 && weightSend == 0 && nfcReaderState == NFC_READ_SUCCESS && tagProcessed == false)
-    {
-      tagProcessed = true;
+      // Wenn ein Tag erkannt wurde und das Gewicht stabil ist (4+ seconds), an FilaMan senden
+      if (weightCounterToApi > 3 && weightSend == 0 && nfcReaderState == NFC_READ_SUCCESS && tagProcessed == false)
+      {
+        tagProcessed = true;
 
-      // Check if it's a Bambu tag - if so, send only UUID without spoolId
-      if (isBambuTag) {
-        sendWeightAsync(0, activeTagUuid, weight);
-        Serial.println("Bambu weight queued for FilaMan (UUID only)");
-      } else {
-        // Normal NTAG: send spoolId + UUID
-        int sId = activeSpoolId.toInt();
-        sendWeightAsync(sId, activeTagUuid, weight);
-        Serial.println("Weight queued for FilaMan");
-      }
-      weightSend = 1;
-
-      // Feedback to user
-      oledShowProgressBar(3, 4, tr(STR_SPOOL_TAG), tr(STR_SENDING));
-      oledSetPriority(DISPLAY_PRIORITY_ACTION, 2000);
-    }
-
-    // Handle successful tag write
-    if (nfcReaderState == NFC_WRITE_SUCCESS && tagProcessed == false)
-    {
-      tagProcessed = true;
-
-      // Only send weight if a valid spoolId exists (spool tag, not location tag)
-      if (activeSpoolId.length() > 0 && activeSpoolId != "0") {
-        int sId = activeSpoolId.toInt();
-        sendWeightAsync(sId, activeTagUuid, weight);
+        // Check if it's a Bambu tag - if so, send only UUID without spoolId
+        if (isBambuTag) {
+          sendWeightAsync(0, activeTagUuid, weight);
+          Serial.println("Bambu weight queued for FilaMan (UUID only)");
+        } else {
+          // Normal NTAG: send spoolId + UUID
+          int sId = activeSpoolId.toInt();
+          sendWeightAsync(sId, activeTagUuid, weight);
+          Serial.println("Weight queued for FilaMan");
+        }
         weightSend = 1;
-        Serial.println("Weight queued for FilaMan after spool tag write");
 
         // Feedback to user
-        oledShowProgressBar(3, 4, tr(STR_TAG_WRITTEN), tr(STR_SENDING));
+        oledShowProgressBar(3, 4, tr(STR_SPOOL_TAG), tr(STR_SENDING));
         oledSetPriority(DISPLAY_PRIORITY_ACTION, 2000);
-      } else {
-        // Location tag written - no weight to send
-        Serial.println("Location tag written successfully - no weight send needed");
+      }
+
+      // Handle successful tag write
+      if (nfcReaderState == NFC_WRITE_SUCCESS && tagProcessed == false)
+      {
+        tagProcessed = true;
+
+        // Only send weight if a valid spoolId exists (spool tag, not location tag)
+        if (activeSpoolId.length() > 0 && activeSpoolId != "0") {
+          int sId = activeSpoolId.toInt();
+          sendWeightAsync(sId, activeTagUuid, weight);
+          weightSend = 1;
+          Serial.println("Weight queued for FilaMan after spool tag write");
+
+          // Feedback to user
+          oledShowProgressBar(3, 4, tr(STR_TAG_WRITTEN), tr(STR_SENDING));
+          oledSetPriority(DISPLAY_PRIORITY_ACTION, 2000);
+        } else {
+          // Location tag written - no weight to send
+          Serial.println("Location tag written successfully - no weight send needed");
+        }
       }
     }
   }
-  }
+  player.update();
   esp_task_wdt_reset();
 }
