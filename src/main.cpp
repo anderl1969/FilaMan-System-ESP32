@@ -15,6 +15,7 @@
 #include "commonFS.h"
 #include "lang.h"
 #include "server_ota.h"
+#include "sound.h"
 
 bool mainTaskWasPaused = 0;
 bool touchSensorConnected = false;
@@ -58,6 +59,8 @@ void setup() {
   startNfc();
 
   loadSpoolFullGesture();
+  // Buzzer
+  startSoundPlayer();
 
   // Touch Sensor
   pinMode(TTP223_PIN, INPUT_PULLUP);
@@ -87,6 +90,9 @@ void setup() {
     // Clear Display after Boot
     oledDisplayText(tr(STR_NOSCALE_PROMPT));
   }
+
+  // Setup finished, play Start Melody
+  player.playSound(SND_BOOT);
 }
 
 
@@ -401,6 +407,7 @@ void loop() {
       }
     }
   }
+  player.update();
   esp_task_wdt_reset();
   vTaskDelay(pdMS_TO_TICKS(5)); // loop lief sonst mit 100 % CPU
 }

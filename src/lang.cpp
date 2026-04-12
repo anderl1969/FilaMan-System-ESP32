@@ -12,6 +12,7 @@ static const char EN_WIFI_INIT[]         = "WiFi init";
 static const char EN_WEBSERVER_INIT[]    = "Webserver init";
 static const char EN_API_INIT[]          = "API init";
 static const char EN_NFC_INIT[]          = "NFC init";
+static const char EN_BUZ_INIT[]          = "Buzzer init";
 static const char EN_SEARCHING_SCALE[]   = "Searching scale";
 static const char EN_INIT_DONE[]         = "Setup finished";
 
@@ -89,6 +90,7 @@ static const char DE_WIFI_INIT[]         = "WiFi init";
 static const char DE_WEBSERVER_INIT[]    = "Webserver init";
 static const char DE_API_INIT[]          = "API init";
 static const char DE_NFC_INIT[]          = "NFC init";
+static const char DE_BUZ_INIT[]          = "Buzzer init";
 static const char DE_SEARCHING_SCALE[]   = "Suche Waage";
 static const char DE_INIT_DONE[]         = "Setup abgeschlossen";
 
@@ -168,6 +170,7 @@ static const char* const stringTable[STR_COUNT][LANG_COUNT] = {
     { EN_WEBSERVER_INIT,   DE_WEBSERVER_INIT },
     { EN_API_INIT,         DE_API_INIT },
     { EN_NFC_INIT,         DE_NFC_INIT },
+    { EN_BUZ_INIT,         DE_BUZ_INIT },
     { EN_SEARCHING_SCALE,  DE_SEARCHING_SCALE },
     { EN_INIT_DONE,        DE_INIT_DONE },
 

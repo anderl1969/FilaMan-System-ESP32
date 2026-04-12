@@ -40,6 +40,12 @@ const uint8_t TTP223_PIN = 25;
 #endif
 // ***** TTP223
 
+// ***** Passive Buzzer (Buzzer)
+// Buzzer circuit wiring
+const uint8_t BUZZER_PIN = 18; // ESP32 pin GPIO18 connected to piezo buzzer
+const uint8_t BUZZER_CHANNEL = 0;
+const uint8_t BUZZER_RESOLUTION = 8;
+// ***** Passive Buzzer
 
 // ***** Display
 const uint8_t OLED_TOP_START = 0;

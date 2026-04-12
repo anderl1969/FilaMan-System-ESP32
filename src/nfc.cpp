@@ -10,6 +10,7 @@
 #include "scale.h"
 #include "main.h"
 #include "lang.h"
+#include "sound.h"
 
 //Adafruit_PN532 nfc(PN532_SCK, PN532_MISO, PN532_MOSI, PN532_SS);
 Adafruit_PN532 nfc(PN532_IRQ, PN532_RESET);
@@ -893,6 +894,7 @@ uint8_t ntag2xx_WriteNDEF(const char *payload) {
 
   Serial.println("==================================================================");
 
+  // player.playSound(SND_SUCCESS);
   return 1;
 }
 
@@ -1157,6 +1159,7 @@ bool decodeNdefAndReturnJson(const byte* encodedMessage, size_t bufferSize, Stri
           Serial.println("No spool scanned before location tag - showing warning");
           oledShowProgressBar(1, 1, tr(STR_LOCATION), tr(STR_SCAN_SPOOL_FIRST));
           oledSetPriority(DISPLAY_PRIORITY_WARNING, 3000);
+          player.playSound(SND_FAIL);
         } else {
           int sId = lastSpoolId.toInt();
           sendLocationAsync(sId, lastSpoolTagUuid, locId, "");
@@ -1327,6 +1330,7 @@ void writeJsonToTag(void *parameter) {
         //oledDisplayText("NFC-Tag written");
         //vTaskDelay(pdMS_TO_TICKS(1000));
         nfcReaderState = NFC_WRITE_SUCCESS;
+        player.playSound(SND_SUCCESS); // bestätigt
         // aktualisieren der Website wenn sich der Status ändert
         sendNfcData();
         if(params->tagType){
@@ -1427,6 +1431,7 @@ void writeJsonToTag(void *parameter) {
 
         // Send error response to API
         Serial.println("Sending failure result to API via fire-and-forget...");
+        player.playSound(SND_FAIL);  // bestätigt
         sendRfidResultAsync("", params->spoolId, params->locationId, false, "Write failed");
     }
   }
@@ -1749,6 +1754,7 @@ void scanRfidTask(void * parameter) {
               oledSetPriority(DISPLAY_PRIORITY_WARNING, 2000);
               nfcReaderState = NFC_READ_ERROR;
               clearLastSpool();
+              player.playSound(SND_FAIL);
             }
             else
             {
@@ -1766,6 +1772,7 @@ void scanRfidTask(void * parameter) {
                 oledShowProgressBar(1, 1, tr(STR_FAILURE), tr(STR_TAG_READ_ERROR));
                 oledSetPriority(DISPLAY_PRIORITY_WARNING, 2000);
                 nfcReaderState = NFC_READ_ERROR;
+                player.playSound(SND_FAIL);
                 activeSpoolId = "";
                 clearLastSpool();
                 Serial.println("Tag read failed - activeSpoolId reset to prevent autoSet");
