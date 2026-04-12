@@ -14,6 +14,7 @@
 #include "esp_task_wdt.h"
 #include "commonFS.h"
 #include "lang.h"
+#include "sound.h"
 
 bool mainTaskWasPaused = 0;
 uint8_t scaleTareCounter = 0;
@@ -51,6 +52,9 @@ void setup() {
   // NFC Reader
   startNfc();
 
+  // Buzzer
+  startSoundPlayer();
+
   // Touch Sensor
   pinMode(TTP223_PIN, INPUT_PULLUP);
   if (digitalRead(TTP223_PIN) == LOW)
@@ -79,6 +83,9 @@ void setup() {
     // Clear Display after Boot
     oledDisplayText(tr(STR_NOSCALE_PROMPT));
   }
+
+  // Setup finished, play Start Melody
+  player.playSound(SND_BOOT);
 }
 
 
@@ -280,5 +287,6 @@ void loop() {
       }
     }
   }
+  player.update();
   esp_task_wdt_reset();
 }

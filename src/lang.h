@@ -18,6 +18,7 @@ enum StringID : uint8_t {
     STR_WEBSERVER_INIT,
     STR_API_INIT,
     STR_NFC_INIT,
+    STR_BUZ_INIT,
     STR_SEARCHING_SCALE,
     STR_INIT_DONE,
 
