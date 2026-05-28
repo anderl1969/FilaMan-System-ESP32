@@ -2,17 +2,18 @@
 
 ⚠️ **Important: Starting with v3.0.0, this system requires the [FilaMan-System](https://github.com/Fire-Devils/filaman-system) backend. Previous direct integrations (Spoolman, MQTT, Bambu Lab) have been moved to the central FilaMan-System.**
 
-FilaMan is a filament management tool for 3D printing. It uses ESP32 hardware for weight measurement and NFC tag management. 
-Users can manage filament spools and configure the device via a web interface. 
+FilaMan is a filament management tool for 3D printing. It uses ESP32 hardware for weight measurement and NFC tag management.
+Users can manage filament spools and configure the device via a web interface.
 The system integrates seamlessly with the [FilaMan-System](https://github.com/Fire-Devils/filaman-system).
 
+**NEW since 3.3.1:** A reduced version w/o scale is also available. Details can be found in [NFC-only mode](docs/NFC-only_mode_en.md).
 
 ![Scale](./img/scale_trans.png)
 
 
-More Images can be found in the [img Folder](/img/)  
-or my website: [FilaMan Website](https://www.filaman.app)  
-german explanatory video: [Youtube](https://youtu.be/uNDe2wh9SS8?si=b-jYx4I1w62zaOHU)  
+More Images can be found in the [img Folder](/img/)
+or my website: [FilaMan Website](https://www.filaman.app)
+german explanatory video: [Youtube](https://youtu.be/uNDe2wh9SS8?si=b-jYx4I1w62zaOHU)
 Discord Server: [https://discord.gg/my7Gvaxj2v](https://discord.gg/my7Gvaxj2v)
 
 ## NEW: Recycling Fabrik
@@ -27,7 +28,7 @@ that the spools can be automatically recognized and imported into the FilaMan-Sy
 
 **What is Recycling Fabrik?**
 
-Recycling Fabrik is a German company dedicated to developing and manufacturing sustainable 3D printing filament. 
+Recycling Fabrik is a German company dedicated to developing and manufacturing sustainable 3D printing filament.
 Their filaments are made from 100% recycled material from both end customers and industry – for an environmentally conscious and resource-saving future.
 
 More information and products can be found here: [www.recyclingfabrik.com](https://www.recyclingfabrik.com)
@@ -45,7 +46,7 @@ More information and products can be found here: [www.recyclingfabrik.com](https
 
 ### Web Interface Features
 - **Real-time Updates:** WebSocket connection for live data updates.
-- **NFC Tag Management:** 
+- **NFC Tag Management:**
 	- Write filament data to NFC tags.
 	- Supports automatic Spool detection in compatible systems.
 - **FilaMan-System Integration:**
@@ -122,7 +123,7 @@ When you scan a manufacturer NFC tag for the first time:
 | PN532 SCL         | 22        |
 | TTP223 I/O        | 25        |
 
-**!! Make sure that the DIP switches on the PN532 are set to I2C**  
+**!! Make sure that the DIP switches on the PN532 are set to I2C**
 **Use the 3V pin from the ESP for the touch sensor**
 
 ![Wiring](./img/Schaltplan.png)
@@ -130,10 +131,10 @@ When you scan a manufacturer NFC tag for the first time:
 ![myWiring](./img/IMG_2589.jpeg)
 ![myWiring](./img/IMG_2590.jpeg)
 
-*The load cell is connected to most HX711 modules as follows:  
-E+ red  
-E- black  
-A- white  
+*The load cell is connected to most HX711 modules as follows:
+E+ red
+E- black
+A- white
 A+ green*
 
 ## Software Dependencies
