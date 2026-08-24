@@ -6,21 +6,35 @@
 //#define PN532_MOSI  23
 //#define PN532_SS    5
 //#define PN532_MISO  19
+#if CONFIG_IDF_TARGET_ESP32S3
+const uint8_t PN532_IRQ = 15;
+const uint8_t PN532_RESET = 16;
+#else
 const uint8_t PN532_IRQ = 32;
 const uint8_t PN532_RESET = 33;
+#endif
 // ***** PN532
 
 // ***** HX711 (Waage)
 // HX711 circuit wiring
-const uint8_t LOADCELL_DOUT_PIN = 16; //16;
-const uint8_t LOADCELL_SCK_PIN = 17; //17;
+#if CONFIG_IDF_TARGET_ESP32S3
+const uint8_t LOADCELL_DOUT_PIN = 19;
+const uint8_t LOADCELL_SCK_PIN = 20;
+#else
+const uint8_t LOADCELL_DOUT_PIN = 16;
+const uint8_t LOADCELL_SCK_PIN = 17;
+#endif
 const uint8_t calVal_eepromAdress = 0;
 const uint16_t SCALE_LEVEL_WEIGHT = 500;
 // ***** HX711
 
 // ***** TTP223 (Touch Sensor)
 // TTP223 circuit wiring
+#if CONFIG_IDF_TARGET_ESP32S3
+const uint8_t TTP223_PIN = 7;
+#else
 const uint8_t TTP223_PIN = 25;
+#endif
 // ***** TTP223
 
 // ***** Passive Buzzer (Buzzer)
