@@ -278,21 +278,21 @@ void loop() {
         sendWeightAsync(sId, activeTagUuid, weight);
         weightSend = 1;
 
-        // Feedback to user
-        oledShowProgressBar(3, 4, tr(STR_SPOOL_TAG), tr(STR_SENDING));
-        oledSetPriority(DISPLAY_PRIORITY_ACTION, 2000);
-      }
+      //   // Feedback to user
+      //   oledShowProgressBar(3, 4, tr(STR_SPOOL_TAG), tr(STR_SENDING));
+      //   oledSetPriority(DISPLAY_PRIORITY_ACTION, 2000);
+      // }
 
-      // Handle successful tag write
-      if (nfcReaderState == NFC_WRITE_SUCCESS && tagProcessed == false)
-      {
-        tagProcessed = true;
+      // // Handle successful tag write
+      // if (nfcReaderState == NFC_WRITE_SUCCESS && tagProcessed == false)
+      // {
+      //   tagProcessed = true;
 
-        // Only send weight if a valid spoolId exists (spool tag, not location tag)
-        if (activeSpoolId.length() > 0 && activeSpoolId != "0") {
-          int sId = activeSpoolId.toInt();
-          sendWeightAsync(sId, activeTagUuid, weight);
-          weightSend = 1;
+      //   // Only send weight if a valid spoolId exists (spool tag, not location tag)
+      //   if (activeSpoolId.length() > 0 && activeSpoolId != "0") {
+      //     int sId = activeSpoolId.toInt();
+      //     sendWeightAsync(sId, activeTagUuid, weight);
+      //     weightSend = 1;
           Serial.println("Weight queued for FilaMan after spool tag write");
 
           // Feedback to user
